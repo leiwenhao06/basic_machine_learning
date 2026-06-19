@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip list *)",
+      "Bash(python3 *)",
+      "Bash(/d/Miniconda/envs/claude_CLI_workspace/python *)",
+      "Bash(mkdir *)",
+      "Bash(python -m py_compile \"./12_clustering/main.py\")"
+    ]
+  }
+}
