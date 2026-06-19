@@ -34,8 +34,9 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 np.random.seed(42)
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # ============================================================
@@ -113,7 +114,7 @@ def task1_breast_cancer_mlp():
     ax[1].set_title(f'全数据集混淆矩阵 (准确率={acc_full:.4f})', fontsize=14)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'task1_confusion_matrix.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'task1_confusion_matrix.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 
@@ -220,13 +221,15 @@ def task2_bodyfat_regression():
     print("=" * 70)
 
     # 尝试加载已有数据, 否则生成
-    bodyfat_path = os.path.join(DATA_DIR, 'bodyfat.csv')
+    bodyfat_path = os.path.join(DATA_DIR, 'bodyfat.txt')
     if os.path.exists(bodyfat_path):
         print(f"加载已有数据: {bodyfat_path}")
-        df = pd.read_csv(bodyfat_path)
-        # 如果不含 Density 列, 特征从第一列到倒数第二列
-        if 'Density' in df.columns:
-            df = df.drop(columns=['Density'])
+        # bodyfat.txt 是空格分隔, 无表头, 共16列
+        col_names = ['Density', 'BodyFat', 'Age', 'Weight', 'Height',
+                     'Neck', 'Chest', 'Abdomen', 'Hip', 'Thigh',
+                     'Knee', 'Ankle', 'Biceps', 'Forearm', 'Wrist']
+        df = pd.read_csv(bodyfat_path, sep=r'\s+', names=col_names)
+        df = df.drop(columns=['Density'])
         feature_cols = [c for c in df.columns if c != 'BodyFat']
     else:
         print("生成体脂率样本数据...")
@@ -338,7 +341,7 @@ def task2_bodyfat_regression():
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'task2_bodyfat_regression.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'task2_bodyfat_regression.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 
@@ -493,7 +496,7 @@ def task3_multi_method_comparison():
     axes[1].set_title('SVM (RBF) 混淆矩阵', fontsize=14)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'task3_comparison.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'task3_comparison.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 

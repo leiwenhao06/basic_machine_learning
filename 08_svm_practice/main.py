@@ -26,8 +26,13 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans']
 plt.rcParams['axes.unicode_minus'] = False
 
+import os
+
 # 全局随机种子
 RANDOM_STATE = 42
+
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
+os.makedirs(DATA_DIR, exist_ok=True)
 
 
 # ================================================================
@@ -263,8 +268,7 @@ def task2_breast_cancer_svm():
 # ================================================================
 def load_or_create_pima():
     """加载 pima-diabetes.csv, 如果不存在则生成样本数据"""
-    import os
-    path = 'data/pima-diabetes.csv'
+    path = os.path.join(DATA_DIR, 'pima-diabetes.csv')
     if os.path.exists(path):
         df = pd.read_csv(path)
         print(f"从 {path} 加载数据, 形状: {df.shape}")
@@ -316,7 +320,6 @@ def load_or_create_pima():
     df['Pregnancies'] = df['Pregnancies'].astype(int)
     df['Outcome'] = df['Outcome'].astype(int)
 
-    os.makedirs('data', exist_ok=True)
     df.to_csv(path, index=False)
     print(f"模拟数据已保存至 {path}, 形状: {df.shape}")
     return df

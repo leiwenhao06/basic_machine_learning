@@ -41,9 +41,10 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 np.random.seed(42)
 
-BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
+MODULE_DIR = BASE_DIR
 
 
 # ============================================================
@@ -99,6 +100,16 @@ def load_fertility_depth_data(txt_path, csv_path):
     df_txt = pd.read_csv(txt_path, sep='\t', encoding='utf-8-sig')
     df_csv = pd.read_csv(csv_path, encoding='utf-8-sig')
 
+    # 兼容不同的列名: x→深度(m), y→肥沃指数
+    rename_map = {}
+    if 'x' in df_txt.columns and '深度(m)' not in df_txt.columns:
+        rename_map['x'] = '深度(m)'
+    if 'y' in df_txt.columns and '肥沃指数' not in df_txt.columns:
+        rename_map['y'] = '肥沃指数'
+    if rename_map:
+        df_txt = df_txt.rename(columns=rename_map)
+        df_csv = df_csv.rename(columns=rename_map)
+
     # 验证一致性
     assert df_txt.shape == df_csv.shape, "行数/列数不一致!"
     assert np.allclose(df_txt.values, df_csv.values, rtol=1e-5), "数值不一致!"
@@ -116,13 +127,17 @@ def part1_fertility_depth():
     print("第一部分: 连续值预测 — 地深肥沃指数 (线性回归 vs SVR)")
     print("=" * 70)
 
-    # ---- 1.1 生成并加载数据 ----
+    # ---- 1.1 加载或生成数据 ----
     print("\n>>> 1.1 数据准备")
-    df = generate_fertility_depth_data(n_samples=50)
-    txt_path, csv_path = save_fertility_depth_data(df)
-
-    # 加载并验证
-    df_loaded = load_fertility_depth_data(txt_path, csv_path)
+    txt_path = os.path.join(DATA_DIR, '地深肥沃指数.txt')
+    csv_path = os.path.join(DATA_DIR, '地深肥沃指数.csv')
+    if os.path.exists(txt_path) and os.path.exists(csv_path):
+        print(f"从 {DATA_DIR} 加载已有数据")
+        df_loaded = load_fertility_depth_data(txt_path, csv_path)
+    else:
+        df = generate_fertility_depth_data(n_samples=50)
+        txt_path, csv_path = save_fertility_depth_data(df)
+        df_loaded = load_fertility_depth_data(txt_path, csv_path)
     print(f"\n数据前5行:\n{df_loaded.head()}")
     print(f"\n数据统计:\n{df_loaded.describe()}")
 
@@ -280,7 +295,7 @@ def part1_fertility_depth():
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'part1_fertility_depth.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'part1_fertility_depth.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 
@@ -527,7 +542,7 @@ def part2_breast_cancer():
     ax5.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'part2_breast_cancer.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'part2_breast_cancer.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 
@@ -813,7 +828,7 @@ def part3_imbalanced_and_dim_reduction():
 
     plt.suptitle('乳腺癌数据集综合分析', fontsize=16, fontweight='bold', y=1.01)
     plt.tight_layout()
-    plt.savefig(os.path.join(DATA_DIR, 'part3_comprehensive.png'), dpi=150,
+    plt.savefig(os.path.join(MODULE_DIR, 'part3_comprehensive.png'), dpi=150,
                 bbox_inches='tight')
     plt.show()
 
